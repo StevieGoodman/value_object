@@ -1,5 +1,5 @@
 {
-    "name": "Unnamed Package",
+    "name": "Value Object",
 
     "tree": {
         "$className": "DataModel",

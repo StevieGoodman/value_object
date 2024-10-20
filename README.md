@@ -1,14 +1,13 @@
-# Roblox Library Template
-This repository is used to quickly set up a Roblox development environment suited for creating Roblox libraries.
+# Value Object
+An encapsulation of a value for improving state management ergonomics in Lua.
 
 ## Toolchain
 This project makes use of:
 - Wally (package manager)
 - Rojo (Studio-to-filesystem server)
 
-## Dev Packages
-- TestEZ: Unit testing
-- TableUtil: Used to get `.spec` files for TestEZ
+## Dependencies
+- Signal (sleitnick, v2.0.1)
 
 ## Setup
 1. Clone project
