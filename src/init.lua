@@ -19,7 +19,10 @@ function ValueObject.new<T>(value: T): ValueObject<T>
 end
 
 function ValueObject:Get<T>(): T
-	return self._value
+	return
+		if typeof(self._value) == "table"
+		then table.clone(self._value)
+		else self._value
 end
 
 function ValueObject:Set<T>(newValue: T): nil
