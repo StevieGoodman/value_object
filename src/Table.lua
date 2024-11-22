@@ -3,8 +3,6 @@ local TableUtil = require(script.Parent.Parent.TableUtil)
 local Value = require(script.Parent.Value)
 
 export type Table<T> = {
-	Length: Value.Value<number>,
-
 	Get: (self: Table<T>) -> {T},
 	Set: (self: Table<T>, newValue: table) -> nil,
 	Insert: (self: Table<T>, value: any, index: number?) -> number,
@@ -146,6 +144,10 @@ end
 
 function Table:__iter<T>()
 	return next, self:Get()
+end
+
+function Table:__len<T>()
+	return #self:Get()
 end
 
 return Table
