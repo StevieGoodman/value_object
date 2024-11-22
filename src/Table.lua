@@ -56,31 +56,36 @@ function Table:Set<T>(newTable: {T}?): Table<T>
 		local oldElementIndex = table.find(newElements, oldElement)
 		if oldElementIndex ~= nil then
 			table.remove(newElements, oldElementIndex)
+		else
+			self.Removed:Fire(oldElement)
 		end
-		self.Removed:Fire(oldElement)
 	end
-	newElements = self:Get()
 	for _, newElement in self do
 		local newElementIndex = table.find(oldElements, newElement)
 		if newElementIndex ~= nil then
 			table.remove(oldElements, newElementIndex)
+		else
+			self.Inserted:Fire(newElement)
 		end
-		self.Inserted:Fire(newElement)
 	end
 end
 
 function Table:Insert<T>(value: any, index: number?): number
 	local elements = self:Get()
 	local newIndex = index or #table + 1
-	table.insert(elements, index, value)
-	self._table:Set(elements)
+	if index == nil then
+		table.insert(elements, value)
+	else
+		table.insert(elements, index, value)
+	end
+	self:Set(elements)
 	return newIndex
 end
 
 function Table:Remove<T>(index: number): any
 	local elements = self:Get()
 	local value = table.remove(elements, index)
-	self._table:Set(elements)
+	self:Set(elements)
 	return value
 end
 
