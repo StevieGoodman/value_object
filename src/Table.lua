@@ -70,11 +70,13 @@ function Table:Remove<T>(index: number): any
 end
 
 function Table:Clear<T>()
-	self._table:Set({})
+	for index, _ in self do
+		self:Remove(index)
+	end
 end
 
 function Table:Find<T>(value: any): number?
-	for index, element in self:Get() do
+	for index, element in self do
 		if element ~= value then continue end
 		return index
 	end
