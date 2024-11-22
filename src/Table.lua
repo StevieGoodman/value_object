@@ -49,7 +49,24 @@ end
 
 function Table:Set<T>(newTable: {T}?): Table<T>
 	assert(typeof(newTable) == "table" or newTable == nil, "Table:Set() expects a table or nil")
+	local oldElements = self:Get()
 	self._table:Set(newTable or {})
+	local newElements = self:Get()
+	for _, oldElement in oldElements do
+		local oldElementIndex = table.find(newElements, oldElement)
+		if oldElementIndex ~= nil then
+			table.remove(newElements, oldElementIndex)
+		end
+		self.Removed:Fire(oldElement)
+	end
+	newElements = self:Get()
+	for _, newElement in self do
+		local newElementIndex = table.find(oldElements, newElement)
+		if newElementIndex ~= nil then
+			table.remove(oldElements, newElementIndex)
+		end
+		self.Inserted:Fire(newElement)
+	end
 end
 
 function Table:Insert<T>(value: any, index: number?): number
@@ -57,7 +74,6 @@ function Table:Insert<T>(value: any, index: number?): number
 	local newIndex = index or #table + 1
 	table.insert(elements, index, value)
 	self._table:Set(elements)
-	self.Inserted:Fire(value, newIndex)
 	return newIndex
 end
 
@@ -65,7 +81,6 @@ function Table:Remove<T>(index: number): any
 	local elements = self:Get()
 	local value = table.remove(elements, index)
 	self._table:Set(elements)
-	self.Removed:Fire(value, index)
 	return value
 end
 
