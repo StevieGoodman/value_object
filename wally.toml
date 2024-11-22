@@ -1,16 +1,19 @@
 [package]
 name = "steviegoodman/value-object"
-description = "An encapsulation of a value for improving state management ergonomics in Lua."
-version = "1.1.0"
+description = "An encapsulation of valuse and tables for improving state management ergonomics in Lua."
+version = "2.0.0"
 registry = "https://github.com/UpliftGames/wally-index"
 realm = "shared"
 exclude = ["**"]
 include = [
     "src",
     "src/init.lua",
+    "src/Value.lua",
+    "src/Table.lua",
     "default.project.json",
     "wally.toml"
 ]
 
 [dependencies]
 Signal = "sleitnick/signal@2.0.1"
+TableUtil = "sleitnick/table-util@1.2.1"
