@@ -90,9 +90,7 @@ function Table:Remove<T>(index: number): any
 end
 
 function Table:Clear<T>()
-	for index, _ in self do
-		self:Remove(index)
-	end
+	self:Set({})
 end
 
 function Table:Find<T>(value: any): number?
