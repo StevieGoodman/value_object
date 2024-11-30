@@ -28,8 +28,6 @@ export type Table<T> = {
 
 local Table = {}
 
-Table.__index = Table
-
 function Table.new<T>(elements: {T}?): Table<T>
 	assert(typeof(elements) == "table" or elements == nil, "Table.new() expects a table or nil")
 	elements = Value.new(elements or {})
@@ -53,38 +51,54 @@ function Table:Set<T>(newTable: {T}?): Table<T>
 	self._table:Set(newTable or {})
 	local newElements = self:Get()
 	for _, oldElement in oldElements do
-		local oldElementIndex = table.find(newElements, oldElement)
-		if oldElementIndex ~= nil then
-			table.remove(newElements, oldElementIndex)
+		local _, oldElementKey = TableUtil.Find(newElements, function(_, element)
+			return element == oldElement
+		end)
+		if oldElementKey ~= nil then
+			newElements[oldElementKey] = nil
 		else
 			self.Removed:Fire(oldElement)
 		end
 	end
 	for _, newElement in self do
-		local newElementIndex = table.find(oldElements, newElement)
-		if newElementIndex ~= nil then
-			table.remove(oldElements, newElementIndex)
+		local _, newElementKey = TableUtil.Find(oldElements, function(_, element)
+			return element == newElement
+		end)
+		if newElementKey ~= nil then
+			oldElements[newElementKey] = nil
 		else
 			self.Inserted:Fire(newElement)
 		end
 	end
 end
 
-function Table:Insert<T>(value: any, index: number?): number
+function Table:GetValue<T>(key: any): any
+	return self:Get()[key]
+end
+
+function Table:SetValue<T>(key: any, value: any)
 	local elements = self:Get()
-	local newIndex = index or #table + 1
-	if index == nil then
+	elements[key] = value
+	self:Set(elements)
+end
+
+function Table:Insert<T>(value: any, key: any): number
+	local elements = self:Get()
+	local newIndex = key or #table + 1
+	if key == nil then
 		table.insert(elements, value)
 	else
-		table.insert(elements, index, value)
+		assert(elements[key] == nil, `Table:Insert(): Cannot insert with key {key} because it is already occupied.`)
+		elements[key] = value
 	end
 	self:Set(elements)
 	return newIndex
 end
 
-function Table:Remove<T>(index: number): any
+function Table:Remove<T>(key: any): any
 	local elements = self:Get()
-	local value = table.remove(elements, index)
+	local value = elements[key]
+	elements[key] = nil
 	self:Set(elements)
 	return value
 end
@@ -93,10 +107,10 @@ function Table:Clear<T>()
 	self:Set({})
 end
 
-function Table:Find<T>(value: any): number?
-	for index, element in self do
+function Table:Find<T>(value: any): any?
+	for key, element in self do
 		if element ~= value then continue end
-		return index
+		return key
 	end
 	return nil
 end
@@ -119,15 +133,15 @@ function Table:Unpack<T>(startingIndex: number?, endingIndex: number?): {T}
 	return table.unpack(self:Get(), startingIndex, endingIndex)
 end
 
-function Table:Every<T>(callback: (value: any, index: number, tbl: table) -> boolean): boolean
+function Table:Every<T>(callback: (value: any, key: any, tbl: table) -> boolean): boolean
 	return TableUtil.Every(self:Get(), callback)
 end
 
-function Table:Some<T>(callback: (value: any, index: number, tbl: table) -> boolean): boolean
+function Table:Some<T>(callback: (value: any, key: any, tbl: table) -> boolean): boolean
 	return TableUtil.Some(self:Get(), callback)
 end
 
-function Table:Map<T>(callback: (value: any, index: number, tbl: table) -> any): {any}
+function Table:Map<T>(callback: (value: any, key: any, tbl: table) -> any): {any}
 	local elements = self:Get()
 	for index, element in elements do
 		elements[index] = callback(element, index, elements)
@@ -135,7 +149,7 @@ function Table:Map<T>(callback: (value: any, index: number, tbl: table) -> any):
 	return elements
 end
 
-function Table:Reduce<T>(callback: (accumulator: any, value: any, index: number) -> any, initialValue: any?): any
+function Table:Reduce<T>(callback: (accumulator: any, value: any, any: any) -> any, initialValue: any?): any
 	return TableUtil.Reduce(self:Get(), callback, initialValue)
 end
 
@@ -169,5 +183,7 @@ end
 function Table:__len<T>()
 	return #self:Get()
 end
+
+Table.__index = Table
 
 return Table
