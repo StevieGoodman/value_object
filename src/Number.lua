@@ -16,11 +16,11 @@ local Number = {}
 
 function Number.new(value: number?, type: NumberType): Number
 	assert(typeof(value) == "number", "Number.new() expects a number or nil for value")
-	value = Value.new()
+	local valueObject = Value.new()
 	local self = {
-		_value = value,
+		_value = valueObject,
         _type = type or "Number",
-		Changed = value.Changed,
+		Changed = valueObject.Changed,
 	}
 	setmetatable(self, Number)
     self:Set(value or 0)
